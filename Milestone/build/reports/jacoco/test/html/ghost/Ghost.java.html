@@ -1,0 +1,956 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ghost.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">Ghost.java</span></div><h1>Ghost.java</h1><pre class="source lang-java linenums">package ghost;
+import java.util.ArrayList;
+import java.util.Random;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.data.JSONArray;
+import processing.core.PFont;
+public class Ghost {
+    protected int x;
+    protected int y;
+    protected int wakaX;
+    protected int wakaY;
+    protected PImage sprite;
+    protected int speed;
+<span class="fc" id="L15">    protected boolean scatter = true;</span>
+<span class="fc" id="L16">    protected int lastDirection = 0; //1 left 2 right 3 up 4 down</span>
+    protected boolean debug;
+    protected boolean frightened;
+    protected PImage frightenedImg;
+    protected boolean sodaMode;
+    protected PImage wavy1Img;
+    protected PImage wavy2Img;
+    protected String target;
+<span class="fc" id="L24">    protected int sodaModePointer = 0;</span>
+    static protected int frightenedModeLength;
+<span class="fc" id="L26">    static protected int frightenedModePointer = 0;</span>
+    static protected int modePointerI;
+    static protected int modePointerJ;
+
+    /**
+     * Getter method for Ghost's x coordinate in unit of pixels.
+     * @return x, x coordinate
+     */
+    public int getX() {
+<span class="fc" id="L35">        return x;</span>
+    }
+
+    /**
+     * Getter method for Ghost's y coordinate in unit of pixels.
+     * @return y, y coordinate
+     */
+    public int getY() {
+<span class="fc" id="L43">        return y;</span>
+    }
+
+    /**
+     * Getter method for identity(type) of the ghost 
+     * @return for generic ghost: null,
+     *  for Ambusher: &quot;Ambusher&quot;,
+     *  for Chaser: &quot;Chaser&quot;,
+     *  for Ignorant: &quot;Ignorant&quot;,
+     *  for Whim: &quot;Whim&quot;.
+     */
+    public String getIdentity() {
+<span class="fc" id="L55">        return null;</span>
+    }
+
+    /**
+     * Getter method of sodaModePointer
+     * @return int sodaModePointer
+     */
+    public int getSodaModePointer() { 
+<span class="fc" id="L63">        return sodaModePointer;</span>
+    }
+
+    /**
+     * Getter method for modePointerI and modePointerJ.
+     * modePointerI and modePointerJ are used for tracking
+     * Ghost's time in modeLengths.
+     * @return int[] {modePointerI,modePointerJ}
+     */
+    public static int[] getIJPointers() {
+<span class="fc" id="L73">        return new int[] {modePointerI,modePointerJ};</span>
+    }
+
+    /**
+     * A static setter method which sets the frightened mode length
+     * for the entire ghost class.
+     * @param length specified in the config file.
+     */
+    public static void setFrightenedModeLength(int length) {
+<span class="fc" id="L82">        Ghost.frightenedModeLength = length;</span>
+<span class="fc" id="L83">    }</span>
+
+    /**
+     * Constructor for Ghost.
+     */
+<span class="fc" id="L88">    public Ghost(int x, int y, PImage sprite,PImage frightenedImg,PImage wavy1Img,PImage wavy2Img, int speed, int frightenedModeLength) {</span>
+<span class="fc" id="L89">        this.x = x;</span>
+<span class="fc" id="L90">        this.y = y;</span>
+<span class="fc" id="L91">        this.sprite = sprite;</span>
+<span class="fc" id="L92">        this.frightenedImg = frightenedImg;</span>
+<span class="fc" id="L93">        this.wavy1Img = wavy1Img;</span>
+<span class="fc" id="L94">        this.wavy2Img = wavy2Img;</span>
+<span class="fc" id="L95">        this.speed = speed;</span>
+<span class="fc" id="L96">    }</span>
+
+    /**
+     * A stub constructor convenient for testing.
+     */
+<span class="fc" id="L101">    public Ghost(int x, int y, int speed) {</span>
+<span class="fc" id="L102">        this.x = x;</span>
+<span class="fc" id="L103">        this.y = y;</span>
+<span class="fc" id="L104">        this.speed = speed;</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * @return Closest, a code range from 0 to 12,
+     * representing different states of Ghost's 
+     * motion relative to target position.
+     */
+    public int generateClosest(int targetX, int targetY) {
+        int closest;
+<span class="fc bfc" id="L114" title="All 4 branches covered.">        if (targetX &lt; x &amp;&amp; targetY &lt; y) { </span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">            if (x - targetX &gt; y -targetY) {</span>
+<span class="fc" id="L116">                closest = 0;</span>
+            } else {
+<span class="fc" id="L118">                closest = 9;</span>
+            }
+<span class="fc bfc" id="L120" title="All 4 branches covered.">        } else if (targetX &gt; x &amp;&amp; targetY &lt; y) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            if (targetX - x &gt; y - targetY) {</span>
+<span class="fc" id="L122">                closest = 1;</span>
+            } else {
+<span class="fc" id="L124">                closest = 10;</span>
+            }
+<span class="fc bfc" id="L126" title="All 4 branches covered.">        } else if (targetX &lt; x &amp;&amp; targetY &gt; y) {</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">            if (x -targetX &gt; targetY -y) {</span>
+<span class="fc" id="L128">                closest = 2;</span>
+            } else {
+<span class="fc" id="L130">                closest = 11;</span>
+            }
+<span class="fc bfc" id="L132" title="All 4 branches covered.">        } else if (targetX &gt; x &amp;&amp; targetY &gt; y) {</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            if (targetX - x &gt; targetY - y) {</span>
+<span class="fc" id="L134">                closest = 3;</span>
+            } else {
+<span class="fc" id="L136">                closest = 12;</span>
+            }
+<span class="fc bfc" id="L138" title="All 4 branches covered.">        } else if (targetX == x &amp;&amp; targetY &lt; y) {</span>
+<span class="fc" id="L139">            closest = 4;</span>
+<span class="fc bfc" id="L140" title="All 4 branches covered.">        } else if (targetX == x &amp;&amp; targetY &gt; y) {</span>
+<span class="fc" id="L141">            closest = 5;</span>
+<span class="pc bpc" id="L142" title="1 of 4 branches missed.">        } else if (targetX &lt; x &amp;&amp; targetY == y) {</span>
+<span class="fc" id="L143">            closest = 6;</span>
+<span class="pc bpc" id="L144" title="1 of 4 branches missed.">        } else if (targetX &gt; x &amp;&amp; targetY == y) {</span>
+<span class="fc" id="L145">            closest = 7;</span>
+        } else {
+<span class="fc" id="L147">            closest = 8;</span>
+        }
+<span class="fc" id="L149">        return closest;</span>
+    }
+
+    /**
+     * @param cellMap list of list of Cells.
+     * @param closest code generated by generateClosest().
+     * This method follows after the Closest code generated by generateClosest(),
+     * Give Ghost with a given code a fixed pattern of movement.
+     */
+    public void moveAccordingToClosest(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap, int closest) {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (closest == 0) {</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">            if (toLeft(cellMap)) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            } else if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">            } else if (toDown(cellMap)) {</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">            } else if (toRight(cellMap)) {</span>
+<span class="fc" id="L164">            } else {goBack();}</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        } else if (closest == 1) {</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            if (toRight(cellMap)) {</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">            } else if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">            } else if (toDown(cellMap)) {</span>
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">            } else if (toLeft(cellMap)) {</span>
+<span class="fc" id="L170">            } else {goBack();}</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        } else if (closest == 2) {</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">            if (toLeft(cellMap)) {</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">            } else if (toDown(cellMap)) {</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">            } else if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">            } else if (toRight(cellMap)) {</span>
+<span class="fc" id="L176">            } else {goBack();}</span>
+            
+<span class="fc bfc" id="L178" title="All 2 branches covered.">        } else if (closest == 3) {</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">            if (toRight(cellMap)) {</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">            } else if (toDown(cellMap)) {</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            } else if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">            } else if (toLeft(cellMap)) {</span>
+<span class="fc" id="L183">            } else {goBack();}</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">        } else if (closest == 4) {</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">            } else if (toLeft(cellMap)) {</span>
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">            } else if (toRight(cellMap)) {</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">            } else if (toDown(cellMap)) {</span>
+<span class="fc" id="L189">            } else {goBack();}</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        } else if (closest == 5) {</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">            if (toDown(cellMap)) {</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            } else if (toLeft(cellMap)) {</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">            } else if (toRight(cellMap)) {</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">            } else if (toUp(cellMap)) {</span>
+<span class="fc" id="L195">            } else {goBack();}</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">        } else if (closest == 6) {</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">            if (toLeft(cellMap)) {</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">            } else if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">            } else if (toDown(cellMap)){</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">            } else if (toRight(cellMap)) {</span>
+<span class="fc" id="L201">            } else {goBack();}</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        } else if (closest == 7) {</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">            if (toRight(cellMap)) {}</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">            else if (toUp(cellMap)) {}</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">            else if (toDown(cellMap)) {}</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">            else if (toLeft(cellMap)) {}</span>
+<span class="fc" id="L207">            else {goBack();}</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">        } else if (closest == 9) {</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">            if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">            } else if (toLeft(cellMap)) {</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            } else if (toRight(cellMap)) {</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">            } else if (toDown(cellMap)) {</span>
+<span class="fc" id="L213">            } else {goBack();}</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">        } else if (closest == 10) {</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">            if (toUp(cellMap)) {</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">            } else if (toRight(cellMap)) {</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">            } else if (toLeft(cellMap)) {</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">            } else if (toDown(cellMap)) {</span>
+<span class="fc" id="L219">            } else {goBack();}</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">        } else if (closest == 11) {</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">            if (toDown(cellMap)) {</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">            } else if (toLeft(cellMap)) {</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">            } else if (toRight(cellMap)) {</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">            } else if (toUp(cellMap)) {</span>
+<span class="fc" id="L225">            } else {goBack();}</span>
+<span class="pc bpc" id="L226" title="1 of 2 branches missed.">        } else if (closest == 12) {</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">            if (toDown(cellMap)) {</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">            } else if (toRight(cellMap)) {</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">            } else if (toLeft(cellMap)) {</span>
+<span class="fc bfc" id="L230" title="All 2 branches covered.">            } else if (toUp(cellMap)) {</span>
+<span class="fc" id="L231">            } else {goBack();}</span>
+        }
+<span class="fc" id="L233">    }</span>
+
+    /**
+     * Setter method for I,J modePointers.
+     * @param modePointerI: small increment pointer
+     * @param modePointerJ: mode reverse pointer
+     */
+    public static void setIJPointers(int modePointerI, int modePointerJ) {
+<span class="fc" id="L241">        Ghost.modePointerI = modePointerI;</span>
+<span class="fc" id="L242">        Ghost.modePointerJ = modePointerJ;</span>
+<span class="fc" id="L243">    }</span>
+
+    /**
+     * A static method synchronises Waka and Ghost's frightened state.
+     */
+    public static void updateGhostFrightened(Waka waka) {
+<span class="fc" id="L249">        Ghost.frightenedModePointer = waka.timeFrightened(Ghost.frightenedModeLength, frightenedModePointer);</span>
+<span class="fc" id="L250">    }</span>
+
+    /**
+     * @param app: game app
+     * @param waka: Waka
+     * The method draws the Ghost's image to app.
+     * It also updates the sodaModePointer and sodaMode of the Ghost.
+     */
+    public void draw(PApplet app, Waka waka) {
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">        if (frightened) {</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">            if (waka.getEnableSodaMode()) {</span>
+<span class="nc" id="L261">                waka.setSodaMode(false);</span>
+<span class="nc" id="L262">                sodaModePointer = 0;</span>
+            }
+<span class="nc" id="L264">            app.image(this.frightenedImg,this.x,this.y);</span>
+<span class="nc" id="L265">            return;</span>
+        }
+<span class="pc bpc" id="L267" title="3 of 4 branches missed.">        if (sodaMode &amp;&amp; sodaModePointer!= 300) {</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">            if ((sodaModePointer/5)%2 == 0) {</span>
+<span class="nc" id="L269">                app.image(this.wavy1Img,this.x,this.y);</span>
+            } else {
+<span class="nc" id="L271">                app.image(this.wavy2Img,this.x,this.y);</span>
+            }
+<span class="nc" id="L273">            sodaModePointer ++;</span>
+<span class="nc" id="L274">            return;</span>
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">        } else if (sodaModePointer == 300) {</span>
+<span class="nc" id="L276">            waka.setSodaMode(false);</span>
+<span class="nc" id="L277">            sodaModePointer = 0;</span>
+        }
+<span class="fc" id="L279">        app.image(this.sprite,this.x,this.y);</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">        if (debug) {</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">            if (scatter) {</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">                if (target.equals(&quot;LeftUpCorner&quot;))</span>
+                {
+<span class="nc" id="L284">                    app.line(0,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                } else if (target.equals(&quot;RightUpCorner&quot;))</span>
+                {
+<span class="nc" id="L287">                    app.line(448,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">                } else if (target.equals(&quot;LeftDownCorner&quot;))</span>
+                {
+<span class="nc" id="L290">                    app.line(0,576,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">                } else if (target.equals(&quot;RightDownCorner&quot;))</span>
+                {
+<span class="nc" id="L293">                    app.line(448,576,this.x+13,this.y+10);</span>
+                }
+                
+            } else {
+<span class="nc" id="L297">                app.line(wakaX+12,wakaY+12,this.x+13,this.y+10);</span>
+            }
+        }
+
+<span class="fc" id="L301">    }</span>
+    /**
+     * Elementary move, if possible, move the ghost to the Left, return true.
+     * Otherwise, return false.
+     * @param cellMap: list of list of Cells
+     * @return boolean
+     */
+    public boolean toLeft(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap) {
+<span class="fc bfc" id="L309" title="All 2 branches covered.">        if (((cellMap.get((y+4)/16+1).get((x-13+2)/16+1).getMoveOn()</span>
+<span class="fc bfc" id="L310" title="All 2 branches covered.">            &amp;&amp; cellMap.get((y-11)/16+1).get((x-13+2)/16+1).getMoveOn())</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">            || (cellMap.get((y+4)/16+1).get((x-28+2)/16+1).getMoveOn()</span>
+<span class="pc bpc" id="L312" title="1 of 6 branches missed.">            &amp;&amp; cellMap.get((y-11)/16+1).get((x-28+2)/16+1).getMoveOn()))</span>
+            &amp;&amp; lastDirection != 2 &amp;&amp; this.x &gt; 10) {
+<span class="fc" id="L314">                this.x -=speed;</span>
+<span class="fc" id="L315">                lastDirection = 1;</span>
+<span class="fc" id="L316">                return true;</span>
+            }
+<span class="fc" id="L318">        return false;</span>
+    }
+
+    /**
+     * Elementary move, if possible, move the ghost up, return true.
+     * Otherwise, return false.
+     * @param cellMap: list of list of Cells
+     * @return boolean
+     */
+    public boolean toUp(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap) {
+<span class="fc bfc" id="L328" title="All 2 branches covered.">        if (((cellMap.get((y-27)/16+1).get((x+3+2)/16+1).getMoveOn()</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">            &amp;&amp; cellMap.get((y-27)/16+1).get((x-12+2)/16+1).getMoveOn())</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">            || (cellMap.get((y-12)/16+1).get((x+3+2)/16+1).getMoveOn()</span>
+<span class="fc bfc" id="L331" title="All 4 branches covered.">            &amp;&amp; cellMap.get((y-12)/16+1).get((x-12+2)/16+1).getMoveOn()))</span>
+            &amp;&amp; lastDirection != 4) {
+<span class="fc" id="L333">                this.y -= speed;</span>
+<span class="fc" id="L334">                lastDirection = 3;</span>
+<span class="fc" id="L335">                return true;</span>
+            }
+<span class="fc" id="L337">        return false;</span>
+    }
+
+    /**
+     * Elementary move, if possible, move the ghost to the right, return true.
+     * Otherwise, return false.
+     * @param cellMap: list of list of Cells
+     * @return boolean
+     */
+    public boolean toRight(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap) {
+<span class="fc bfc" id="L347" title="All 2 branches covered.">        if (((cellMap.get((y+4)/16+1).get((x+4+2)/16+1).getMoveOn() </span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">            &amp;&amp; cellMap.get((y-11)/16+1).get((x+4+2)/16+1).getMoveOn()) </span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">            || (cellMap.get((y+4)/16+1).get((x+19+2)/16+1).getMoveOn()</span>
+<span class="pc bpc" id="L350" title="1 of 4 branches missed.">            &amp;&amp; cellMap.get((y-11)/16+1).get((x+19+2)/16+1).getMoveOn()))</span>
+            &amp;&amp; lastDirection != 1) {
+<span class="fc" id="L352">                this.x += speed;</span>
+<span class="fc" id="L353">                lastDirection = 2;</span>
+<span class="fc" id="L354">                return true;</span>
+            }
+<span class="fc" id="L356">        return false;</span>
+    }
+
+    /**
+     * Elementary move, if possible, move the ghost to downwards, return true.
+     * Otherwise, return false.
+     * @param cellMap: list of list of Cells
+     * @return boolean
+     */
+    public boolean toDown(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap) {
+<span class="fc bfc" id="L366" title="All 2 branches covered.">        if (((cellMap.get((y+5)/16+1).get((x+3+2)/16+1).getMoveOn()</span>
+<span class="fc bfc" id="L367" title="All 2 branches covered.">            &amp;&amp; cellMap.get((y+5)/16+1).get((x-12+2)/16+1).getMoveOn())</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">            || (cellMap.get((y+20)/16+1).get((x+3+2)/16+1).getMoveOn()</span>
+<span class="pc bpc" id="L369" title="1 of 4 branches missed.">            &amp;&amp; cellMap.get((y+20)/16+1).get((x-12+2)/16+1).getMoveOn()))</span>
+            &amp;&amp; lastDirection != 3) {
+<span class="fc" id="L371">                this.y += speed;</span>
+<span class="fc" id="L372">                lastDirection = 4;</span>
+<span class="fc" id="L373">                return true;</span>
+            } 
+<span class="fc" id="L375">            return false;</span>
+    }
+
+    /**
+     * Getter method for frightened
+     * @return boolean
+     */
+    public boolean getFrightened() {
+<span class="fc" id="L383">        return frightened;</span>
+    }
+
+    /**
+     * method designed to move ghosts when they meet a dead end/trap.
+     * Ghosts are allowed to move back.
+     * @return lastDirection: latest direction of the Ghost;
+     */
+    public int goBack() {
+<span class="fc bfc" id="L392" title="All 2 branches covered.">        if (lastDirection == 1) {</span>
+<span class="fc" id="L393">            this.x += speed;</span>
+<span class="fc" id="L394">            lastDirection = 2;</span>
+<span class="fc bfc" id="L395" title="All 2 branches covered.">        } else if (lastDirection == 2) {</span>
+<span class="fc" id="L396">            this.x -= speed;</span>
+<span class="fc" id="L397">            lastDirection = 1;</span>
+<span class="fc bfc" id="L398" title="All 2 branches covered.">        } else if (lastDirection == 3) {</span>
+<span class="fc" id="L399">            this.y += speed;</span>
+<span class="fc" id="L400">            lastDirection = 4;</span>
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">        } else if (lastDirection == 4) {</span>
+<span class="fc" id="L402">            this.y -= speed;</span>
+<span class="fc" id="L403">            lastDirection = 3;</span>
+        }
+<span class="fc" id="L405">        return lastDirection;</span>
+    }
+
+    /**
+     * methods of move that will be implemented in child classes.
+     * This method will be implemented by Ambusher to target 4 grid spaces ahead of Waka.
+     */
+<span class="fc" id="L412">    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, String direction, boolean sodaMode) {};</span>
+
+    /**
+     * methods of move that will be implemented in child classes.
+     * This method will be implemented by Chaser to chase Waka.
+     */
+<span class="fc" id="L418">    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, boolean sodaMode) {}</span>
+
+    /**
+     * methods of move that will be implemented in child classes.
+     * This method will be implemented by Whim to chase double the vector from Chaser to 2 grid spaces ahead of 
+     * Waka.
+     */
+<span class="fc" id="L425">    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, String direction, int chaserX, int chaserY, boolean sodaMode) {}</span>
+
+    /**
+     * method for randomly moving Ghosts when they are in frightened mode.
+     */
+    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap) {
+        
+<span class="fc" id="L432">        Random randomGenerator = new Random();</span>
+<span class="fc" id="L433">        double randomness = randomGenerator.nextDouble();</span>
+<span class="fc bfc" id="L434" title="All 2 branches covered.">        if (randomness &lt; 0.25) {</span>
+<span class="fc bfc" id="L435" title="All 2 branches covered.">            if (toLeft(cellMap)) {</span>
+<span class="fc bfc" id="L436" title="All 2 branches covered.">            } else if (toUp(cellMap)) {</span>
+<span class="pc bpc" id="L437" title="1 of 2 branches missed.">            } else if (toRight(cellMap)) {</span>
+<span class="nc bnc" id="L438" title="All 2 branches missed.">            } else if (toDown(cellMap)) {</span>
+<span class="nc" id="L439">            } else { goBack();}</span>
+<span class="fc" id="L440">            return;</span>
+<span class="fc bfc" id="L441" title="All 2 branches covered.">        } else if (randomness &lt; 0.5) {</span>
+<span class="fc bfc" id="L442" title="All 2 branches covered.">            if (toRight(cellMap)) {</span>
+<span class="pc bpc" id="L443" title="1 of 2 branches missed.">            } else if (toUp(cellMap)) {</span>
+<span class="nc bnc" id="L444" title="All 2 branches missed.">            } else if (toLeft(cellMap)) {</span>
+<span class="nc bnc" id="L445" title="All 2 branches missed.">            } else if (toDown(cellMap)) {</span>
+<span class="nc" id="L446">            } else { goBack();}</span>
+<span class="fc" id="L447">            return;</span>
+<span class="fc bfc" id="L448" title="All 2 branches covered.">        } else if (randomness &lt; 0.75) {</span>
+<span class="fc bfc" id="L449" title="All 2 branches covered.">            if (toLeft(cellMap)) {</span>
+<span class="pc bpc" id="L450" title="1 of 2 branches missed.">            } else if (toDown(cellMap)) {</span>
+<span class="fc bfc" id="L451" title="All 2 branches covered.">            } else if (toRight(cellMap)) {</span>
+<span class="pc bpc" id="L452" title="1 of 2 branches missed.">            } else if (toUp(cellMap)) {</span>
+<span class="nc" id="L453">            } else { goBack();}</span>
+<span class="fc" id="L454">            return;</span>
+<span class="pc bpc" id="L455" title="1 of 2 branches missed.">        } else if (randomness &lt; 1.0) {</span>
+<span class="fc bfc" id="L456" title="All 2 branches covered.">            if (toRight(cellMap)) {</span>
+<span class="pc bpc" id="L457" title="1 of 2 branches missed.">            } else if (toDown(cellMap)) {</span>
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">            } else if (toLeft(cellMap)) {</span>
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">            } else if (toUp(cellMap)) {</span>
+<span class="nc" id="L460">            } else { goBack();}</span>
+<span class="fc" id="L461">            return;          </span>
+        }
+
+<span class="nc" id="L464">    }</span>
+
+    /**
+     * This method reverses the scatter state of the ghost.
+     */
+    public void reverseMode() {
+<span class="fc bfc" id="L470" title="All 2 branches covered.">        scatter = !scatter;</span>
+<span class="fc" id="L471">    }</span>
+
+    /**
+     * This method checks if the Waka and Ghosts are touching
+     * @param wakaX: x coordinate of Waka in unit of Pixel.
+     * @param wakaY: y coordinate of Waka in unit of Pixel.
+     * @return boolean: true/false.
+     */
+    public boolean touch(int wakaX, int wakaY) {
+<span class="pc bpc" id="L480" title="1 of 8 branches missed.">        if ((wakaX &gt; x-10 &amp;&amp; wakaX &lt; x+10) &amp;&amp; (wakaY &gt; y-10 &amp;&amp; wakaY &lt;y+10)) {</span>
+<span class="fc" id="L481">            return true;</span>
+        }
+<span class="fc" id="L483">        return false;</span>
+    }
+
+    /**
+     * Static method draw all the ghosts in ghosts ArrayList onto the App.
+     * @param app: game app
+     * @param ghosts: ArrayList pf ghosts
+     * @param waka: Waka
+     * @param debug: whether debug mode
+     */
+    public static void ghostsDraw(App app,ArrayList&lt;Ghost&gt; ghosts,Waka waka,boolean debug) {
+<span class="fc" id="L494">        updateGhostFrightened(waka);</span>
+<span class="fc bfc" id="L495" title="All 2 branches covered.">        for (Ghost g: ghosts) {</span>
+<span class="fc" id="L496">            g.setDebug(debug);</span>
+<span class="fc" id="L497">            g.draw(app,waka);</span>
+<span class="fc" id="L498">        }</span>
+<span class="fc" id="L499">    }</span>
+
+    /**
+     * this method checks if ghosts are touching with Waka, and returns number of lives lost.
+     * @param ghosts: ArrayList of ghosts
+     * @param waka: Waka
+     * @param app: game app
+     * @param lives: number of lives
+     * @return lostLives: number of lives lost
+     */
+    public static int ghostEat(ArrayList&lt;Ghost&gt; ghosts, Waka waka, App app, int lives) {
+<span class="fc" id="L510">        boolean eaten = false;</span>
+<span class="fc bfc" id="L511" title="All 2 branches covered.">        for (Ghost g: ghosts) {</span>
+<span class="fc bfc" id="L512" title="All 2 branches covered.">            if (g.touch(waka.getX(),waka.getY())) {</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">                if (g.getFrightened()) {</span>
+<span class="fc" id="L514">                    ghosts.remove(g);</span>
+<span class="fc" id="L515">                    return 0;</span>
+                }
+<span class="fc bfc" id="L517" title="All 2 branches covered.">                if (lives == 1) {</span>
+<span class="fc" id="L518">                    return 1;</span>
+                }
+<span class="fc" id="L520">                eaten = true;</span>
+            }
+<span class="fc" id="L522">        }</span>
+<span class="fc bfc" id="L523" title="All 2 branches covered.">        if (eaten) {</span>
+<span class="fc" id="L524">            app.setup();</span>
+<span class="fc" id="L525">            return 1;</span>
+        }
+<span class="fc" id="L527">        return 0;</span>
+    }
+
+    /**
+     * Setter method for frightened
+     * @param frightened: boolean variable;
+     */
+    public void setFrightened(boolean frightened) {
+<span class="fc" id="L535">        this.frightened = frightened;</span>
+<span class="fc" id="L536">    }</span>
+
+    /**
+     * This method checks if the ghosts need to change between scatter - chase modes,
+     * by checking I,J modePointers.
+     * It is also a clock that will pause when ghosts are in frightened mode.
+     * @param ghosts: ArrayList of ghosts
+     * @param modelengths: specified by the configuration file.
+     * @param enableFrightenedMode: boolean variable.
+     */
+    public static void checkReverse( 
+    ArrayList&lt;Ghost&gt; ghosts,JSONArray modelengths, boolean enableFrightenedMode) {
+<span class="fc" id="L548">        Ghost.modePointerI++;</span>
+<span class="fc bfc" id="L549" title="All 2 branches covered.">        if (enableFrightenedMode) {</span>
+<span class="fc" id="L550">            Ghost.modePointerI--;</span>
+<span class="fc" id="L551">            Ghost.setIJPointers(Ghost.modePointerI,Ghost.modePointerJ);</span>
+<span class="fc" id="L552">            return;</span>
+        }
+<span class="fc bfc" id="L554" title="All 2 branches covered.">        if (Ghost.modePointerI &gt;= modelengths.getInt(modePointerJ)*60) {</span>
+<span class="fc" id="L555">            Ghost.modePointerI = 0;</span>
+<span class="fc" id="L556">            Ghost.modePointerJ ++;</span>
+
+<span class="fc bfc" id="L558" title="All 2 branches covered.">            for (Ghost g: ghosts) {</span>
+<span class="fc" id="L559">                g.reverseMode();</span>
+<span class="fc" id="L560">            }</span>
+        }
+<span class="fc bfc" id="L562" title="All 2 branches covered.">        if (Ghost.modePointerJ &gt;= modelengths.size()) {</span>
+<span class="fc" id="L563">            Ghost.modePointerJ = 0;</span>
+        }
+<span class="fc" id="L565">    }</span>
+
+    /**
+     * Static method that move all the ghosts in once.
+     * @param ghosts: ArrayList of ghosts
+     * @param cellMap: ArrayList of ArrayList of cells
+     * @param waka: Waka
+     * @param direction: waka's current direction
+     */
+    public static void ghostsMove(ArrayList&lt;Ghost&gt; ghosts,ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap, Waka waka, String direction) {
+<span class="fc bfc" id="L575" title="All 2 branches covered.">        for (Ghost g: ghosts) {</span>
+<span class="fc" id="L576">            boolean frightenedMode = waka.getEnableFrightenedMode();</span>
+<span class="fc bfc" id="L577" title="All 2 branches covered.">            if (g.getIdentity() == &quot;Ambusher&quot;) {</span>
+<span class="fc" id="L578">                g.setFrightened(frightenedMode);</span>
+<span class="fc bfc" id="L579" title="All 2 branches covered.">                if (frightenedMode) {</span>
+<span class="fc" id="L580">                    g.move(cellMap);</span>
+                } else {
+<span class="fc" id="L582">                    g.move(cellMap,waka.getX(),waka.getY(),direction,waka.getEnableSodaMode());</span>
+                }
+<span class="fc bfc" id="L584" title="All 2 branches covered.">            } else if (g.getIdentity() == &quot;Whim&quot;) {</span>
+<span class="fc" id="L585">                Ghost chaser = null;</span>
+<span class="fc bfc" id="L586" title="All 2 branches covered.">                for (int i = 0; i &lt; ghosts.size(); i++) {</span>
+<span class="fc bfc" id="L587" title="All 2 branches covered.">                    if (ghosts.get(i).getIdentity() == &quot;Chaser&quot;) {</span>
+<span class="fc" id="L588">                        chaser = ghosts.get(i);</span>
+<span class="fc" id="L589">                        break;</span>
+                    }
+                }
+<span class="fc bfc" id="L592" title="All 2 branches covered.">                if (chaser != null) {</span>
+<span class="fc" id="L593">                    g.setFrightened(frightenedMode);</span>
+<span class="fc bfc" id="L594" title="All 2 branches covered.">                    if (frightenedMode) {</span>
+<span class="fc" id="L595">                        g.move(cellMap,waka.getX(),waka.getY(),false);</span>
+                    } else {
+<span class="fc" id="L597">                        g.move(cellMap,waka.getX(),waka.getY(),direction, chaser.getX(),chaser.getY(), waka.getEnableSodaMode());</span>
+                    }
+                } else {
+<span class="fc" id="L600">                    g.setFrightened(frightenedMode);</span>
+<span class="fc bfc" id="L601" title="All 2 branches covered.">                    if (frightenedMode) {</span>
+<span class="fc" id="L602">                        g.move(cellMap);</span>
+                    } else {
+<span class="fc" id="L604">                        g.move(cellMap,waka.getX(),waka.getY(),waka.getEnableSodaMode());</span>
+                    }
+                }
+<span class="fc" id="L607">            } else {</span>
+<span class="fc" id="L608">                g.setFrightened(frightenedMode);</span>
+<span class="fc bfc" id="L609" title="All 2 branches covered.">                if (frightenedMode) {</span>
+<span class="fc" id="L610">                    g.move(cellMap);</span>
+                } else {
+<span class="fc" id="L612">                    g.move(cellMap,waka.getX(),waka.getY(),waka.getEnableSodaMode());</span>
+                }
+            }
+<span class="fc" id="L615">        }</span>
+<span class="fc" id="L616">    }</span>
+    /**
+     * Setter method for debug
+     * @param debug: boolean variable
+     */
+    public void setDebug(boolean debug) {
+<span class="fc" id="L622">        this.debug = debug;</span>
+<span class="fc" id="L623">    }</span>
+}
+class Ambusher extends Ghost {
+    private int targetX;
+    private int targetY;
+    public int getTargetX() {
+<span class="fc" id="L629">        return targetX;</span>
+    }
+    public int getTargetY() {
+<span class="fc" id="L632">        return targetY;</span>
+    }
+    public  Ambusher(int x, int y, PImage sprite,PImage frightenedImg,PImage wavy1Img,PImage wavy2Img, int speed, int frightenedModeLength) {
+<span class="fc" id="L635">        super(x,y,sprite,frightenedImg,wavy1Img, wavy2Img, speed, frightenedModeLength);</span>
+<span class="fc" id="L636">    }</span>
+    public Ambusher(int x, int y, int speed) {
+<span class="fc" id="L638">        super(x,y,speed);</span>
+<span class="fc" id="L639">    }</span>
+    @Override
+    public String getIdentity() {
+<span class="fc" id="L642">        return &quot;Ambusher&quot;;</span>
+    }
+    @Override
+    public void draw(PApplet app, Waka waka) {
+<span class="pc bpc" id="L646" title="1 of 2 branches missed.">        if (frightened) {</span>
+<span class="nc bnc" id="L647" title="All 2 branches missed.">            if (waka.getEnableSodaMode()) {</span>
+<span class="nc" id="L648">                waka.setSodaMode(false);</span>
+<span class="nc" id="L649">                sodaModePointer = 0;</span>
+            }
+<span class="nc" id="L651">            app.image(this.frightenedImg,this.x,this.y);</span>
+<span class="nc" id="L652">            return;</span>
+        }
+<span class="pc bpc" id="L654" title="3 of 4 branches missed.">        if (sodaMode &amp;&amp; sodaModePointer!= 300) {</span>
+<span class="nc bnc" id="L655" title="All 2 branches missed.">            if ((sodaModePointer/5)%2 == 0) {</span>
+<span class="nc" id="L656">                app.image(this.wavy1Img,this.x,this.y);</span>
+            } else {
+<span class="nc" id="L658">                app.image(this.wavy2Img,this.x,this.y);</span>
+            }
+<span class="nc" id="L660">            sodaModePointer ++;</span>
+<span class="nc" id="L661">            return;</span>
+<span class="pc bpc" id="L662" title="1 of 2 branches missed.">        } else if (sodaModePointer == 300) {</span>
+<span class="nc" id="L663">            waka.setSodaMode(false);</span>
+<span class="nc" id="L664">            sodaModePointer = 0;</span>
+        }
+<span class="fc" id="L666">        app.image(this.sprite,this.x,this.y);</span>
+<span class="pc bpc" id="L667" title="1 of 2 branches missed.">        if (debug) {</span>
+<span class="nc bnc" id="L668" title="All 2 branches missed.">            if (scatter) {</span>
+<span class="nc bnc" id="L669" title="All 2 branches missed.">                if (target.equals(&quot;LeftUpCorner&quot;))</span>
+                {
+<span class="nc" id="L671">                    app.line(0,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L672" title="All 2 branches missed.">                } else if (target.equals(&quot;RightUpCorner&quot;))</span>
+                {
+<span class="nc" id="L674">                    app.line(448,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L675" title="All 2 branches missed.">                } else if (target.equals(&quot;LeftDownCorner&quot;))</span>
+                {
+<span class="nc" id="L677">                    app.line(0,576,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L678" title="All 2 branches missed.">                } else if (target.equals(&quot;RightDownCorner&quot;))</span>
+                {
+<span class="nc" id="L680">                    app.line(448,576,this.x+13,this.y+10);</span>
+                }
+                
+            } else {
+<span class="nc" id="L684">                app.line(targetX+12,targetY+12,this.x+13,this.y+10);</span>
+            }
+        }
+<span class="fc" id="L687">    }</span>
+    @Override
+    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, String direction, boolean sodaMode) {
+<span class="fc" id="L690">        this.sodaMode = sodaMode;</span>
+<span class="fc" id="L691">        this.wakaX = wakaX;</span>
+<span class="fc" id="L692">        this.wakaY = wakaY;</span>
+        int closest;
+<span class="fc bfc" id="L694" title="All 2 branches covered.">        if (scatter) {</span>
+<span class="fc" id="L695">            target = &quot;RightUpCorner&quot;;</span>
+<span class="fc" id="L696">            closest = generateClosest(448,0);</span>
+        } else {
+<span class="fc bfc" id="L698" title="All 2 branches covered.">            if (direction == &quot;right&quot;) {</span>
+<span class="fc" id="L699">                targetX = wakaX + 64;</span>
+<span class="fc" id="L700">                targetY = wakaY;</span>
+<span class="fc bfc" id="L701" title="All 2 branches covered.">                if (targetX  &gt; 448) {</span>
+<span class="fc" id="L702">                    targetX  = 448;</span>
+                }
+<span class="fc bfc" id="L704" title="All 2 branches covered.">            } else if (direction == &quot;left&quot;) {</span>
+<span class="fc" id="L705">                targetX  = wakaX - 64;</span>
+<span class="fc" id="L706">                targetY = wakaY;</span>
+<span class="fc bfc" id="L707" title="All 2 branches covered.">                if (targetX  &lt; 0) {</span>
+<span class="fc" id="L708">                    targetX  = 0;</span>
+                }
+<span class="fc bfc" id="L710" title="All 2 branches covered.">            } else if (direction == &quot;up&quot;) {</span>
+<span class="fc" id="L711">                targetY = wakaY - 64;</span>
+<span class="fc" id="L712">                targetX = wakaX;</span>
+<span class="fc bfc" id="L713" title="All 2 branches covered.">                if (targetY &lt; 0) {</span>
+<span class="fc" id="L714">                    targetY = 0;</span>
+                }
+
+<span class="pc bpc" id="L717" title="1 of 2 branches missed.">            } else if (direction == &quot;down&quot;) {</span>
+<span class="fc" id="L718">                targetY = wakaY + 64;</span>
+<span class="fc" id="L719">                targetX = wakaX;</span>
+<span class="fc bfc" id="L720" title="All 2 branches covered.">                if (targetY &gt; 576) {</span>
+<span class="fc" id="L721">                    targetY = 576;</span>
+                }
+            }
+<span class="fc" id="L724">            closest = generateClosest(targetX,targetY);</span>
+        }
+<span class="fc" id="L726">        moveAccordingToClosest(cellMap,closest);</span>
+<span class="fc" id="L727">    }</span>
+
+}
+
+class Chaser extends Ghost {
+    public  Chaser(int x, int y, PImage sprite,PImage frightenedImg,PImage wavy1Img,PImage wavy2Img, int speed,int frightenedModeLength) {
+<span class="fc" id="L733">        super(x,y,sprite,frightenedImg,wavy1Img, wavy2Img, speed, frightenedModeLength);</span>
+<span class="fc" id="L734">    }</span>
+    public Chaser(int x, int y, int speed) {
+<span class="fc" id="L736">        super(x,y,speed);</span>
+<span class="fc" id="L737">    }</span>
+    @Override
+    public String getIdentity() {
+<span class="fc" id="L740">        return &quot;Chaser&quot;;</span>
+    }
+    @Override
+    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, boolean sodaMode) {
+<span class="fc" id="L744">        this.sodaMode = sodaMode;</span>
+<span class="fc" id="L745">        this.wakaX = wakaX;</span>
+<span class="fc" id="L746">        this.wakaY = wakaY;</span>
+        int closest;
+<span class="fc bfc" id="L748" title="All 2 branches covered.">        if (scatter) {</span>
+<span class="fc" id="L749">            target = &quot;LeftUpCorner&quot;;</span>
+<span class="fc" id="L750">            closest = generateClosest(0,0);</span>
+        } else {
+<span class="fc" id="L752">            closest = generateClosest(wakaX,wakaY);</span>
+        }
+<span class="fc" id="L754">        moveAccordingToClosest(cellMap,closest);</span>
+
+<span class="fc" id="L756">    }</span>
+}
+
+class Ignorant extends Ghost {
+    private int targetX;
+    private int targetY;
+    public  Ignorant(int x, int y, PImage sprite,PImage frightenedImg,PImage wavy1Img,PImage wavy2Img, int speed, int frightenedModeLength) {
+<span class="fc" id="L763">        super(x,y,sprite,frightenedImg,wavy1Img, wavy2Img, speed, frightenedModeLength);</span>
+<span class="fc" id="L764">    }</span>
+    public Ignorant(int x, int y, int speed) {
+<span class="fc" id="L766">        super(x,y,speed);</span>
+<span class="fc" id="L767">    }</span>
+    @Override
+    public String getIdentity() {
+<span class="fc" id="L770">        return &quot;Ignorant&quot;;</span>
+    }
+    @Override
+    public void draw(PApplet app, Waka waka) {
+<span class="pc bpc" id="L774" title="1 of 2 branches missed.">        if (frightened) {</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">            if (waka.getEnableSodaMode()) {</span>
+<span class="nc" id="L776">                waka.setSodaMode(false);</span>
+<span class="nc" id="L777">                sodaModePointer = 0;</span>
+            }
+<span class="nc" id="L779">            app.image(this.frightenedImg,this.x,this.y);</span>
+<span class="nc" id="L780">            return;</span>
+        }
+<span class="pc bpc" id="L782" title="3 of 4 branches missed.">        if (sodaMode &amp;&amp; sodaModePointer!= 300) {</span>
+<span class="nc bnc" id="L783" title="All 2 branches missed.">            if ((sodaModePointer/5)%2 == 0) {</span>
+<span class="nc" id="L784">                app.image(this.wavy1Img,this.x,this.y);</span>
+            } else {
+<span class="nc" id="L786">                app.image(this.wavy2Img,this.x,this.y);</span>
+            }
+<span class="nc" id="L788">            sodaModePointer ++;</span>
+<span class="nc" id="L789">            return;</span>
+<span class="pc bpc" id="L790" title="1 of 2 branches missed.">        } else if (sodaModePointer == 300) {</span>
+<span class="nc" id="L791">            waka.setSodaMode(false);</span>
+<span class="nc" id="L792">            sodaModePointer = 0;</span>
+        }
+<span class="fc" id="L794">        app.image(this.sprite,this.x,this.y);</span>
+<span class="pc bpc" id="L795" title="1 of 2 branches missed.">        if (debug) {</span>
+<span class="nc bnc" id="L796" title="All 2 branches missed.">            if (scatter) {</span>
+<span class="nc bnc" id="L797" title="All 2 branches missed.">                if (target.equals(&quot;LeftUpCorner&quot;))</span>
+                {
+<span class="nc" id="L799">                    app.line(0,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L800" title="All 2 branches missed.">                } else if (target.equals(&quot;RightUpCorner&quot;))</span>
+                {
+<span class="nc" id="L802">                    app.line(448,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L803" title="All 2 branches missed.">                } else if (target.equals(&quot;LeftDownCorner&quot;))</span>
+                {
+<span class="nc" id="L805">                    app.line(0,576,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L806" title="All 2 branches missed.">                } else if (target.equals(&quot;RightDownCorner&quot;))</span>
+                {
+<span class="nc" id="L808">                    app.line(448,576,this.x+13,this.y+10);</span>
+                }
+                
+            } else {
+<span class="nc" id="L812">                app.line(targetX+12,targetY+12,this.x+13,this.y+10);</span>
+            }
+        }
+<span class="fc" id="L815">    }</span>
+    @Override
+    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, boolean sodaMode) {
+<span class="fc" id="L818">        this.sodaMode = sodaMode;</span>
+<span class="fc" id="L819">        this.wakaX = wakaX;</span>
+<span class="fc" id="L820">        this.wakaY = wakaY;</span>
+        int closest;
+<span class="fc bfc" id="L822" title="All 2 branches covered.">        if (scatter) {</span>
+<span class="fc" id="L823">            target = &quot;LeftDownCorner&quot;;</span>
+<span class="fc" id="L824">            closest = generateClosest(0,576);</span>
+        } else {
+<span class="fc" id="L826">            int distance = (wakaX - this.x)*(wakaX-this.x) + (wakaY - this.y)*(wakaY -  this.y);</span>
+<span class="fc" id="L827">            targetX = 0;</span>
+<span class="fc" id="L828">            targetY = 576;</span>
+<span class="fc bfc" id="L829" title="All 2 branches covered.">            if (distance &lt;= 16384) {</span>
+<span class="fc" id="L830">                targetX = wakaX;</span>
+<span class="fc" id="L831">                targetY = wakaY;</span>
+            }
+<span class="fc" id="L833">            closest = generateClosest(targetX,targetY);</span>
+        }
+<span class="fc" id="L835">        moveAccordingToClosest(cellMap,closest);</span>
+
+<span class="fc" id="L837">    }</span>
+}
+
+class Whim extends Ghost {
+    private int targetX;
+    private int targetY;
+    public  Whim(int x, int y, PImage sprite,PImage frightenedImg,PImage wavy1Img,PImage wavy2Img, int speed, int frightenedModeLength) {
+<span class="fc" id="L844">        super(x,y,sprite,frightenedImg,wavy1Img, wavy2Img, speed, frightenedModeLength);</span>
+<span class="fc" id="L845">    }</span>
+    public Whim(int x, int y, int speed) {
+<span class="fc" id="L847">        super(x,y,speed);</span>
+<span class="fc" id="L848">    }</span>
+    @Override
+    public void draw(PApplet app, Waka waka) {
+
+<span class="pc bpc" id="L852" title="1 of 2 branches missed.">        if (frightened) {</span>
+<span class="nc bnc" id="L853" title="All 2 branches missed.">            if (waka.getEnableSodaMode()) {</span>
+<span class="nc" id="L854">                waka.setSodaMode(false);</span>
+<span class="nc" id="L855">                sodaModePointer = 0;</span>
+            }
+<span class="nc" id="L857">            app.image(this.frightenedImg,this.x,this.y);</span>
+<span class="nc" id="L858">            return;</span>
+        }
+<span class="pc bpc" id="L860" title="3 of 4 branches missed.">        if (sodaMode &amp;&amp; sodaModePointer!= 300) {</span>
+<span class="nc bnc" id="L861" title="All 2 branches missed.">            if ((sodaModePointer/5)%2 == 0) {</span>
+<span class="nc" id="L862">                app.image(this.wavy1Img,this.x,this.y);</span>
+            } else {
+<span class="nc" id="L864">                app.image(this.wavy2Img,this.x,this.y);</span>
+            }
+<span class="nc" id="L866">            sodaModePointer ++;</span>
+<span class="nc" id="L867">            return;</span>
+<span class="pc bpc" id="L868" title="1 of 2 branches missed.">        } else if (sodaModePointer == 300) {</span>
+<span class="nc" id="L869">            waka.setSodaMode(false);</span>
+<span class="nc" id="L870">            sodaModePointer = 0;</span>
+        }
+<span class="fc" id="L872">        app.image(this.sprite,this.x,this.y);</span>
+<span class="pc bpc" id="L873" title="1 of 2 branches missed.">        if (debug) {</span>
+<span class="nc bnc" id="L874" title="All 2 branches missed.">            if (scatter) {</span>
+<span class="nc bnc" id="L875" title="All 2 branches missed.">                if (target.equals(&quot;LeftUpCorner&quot;))</span>
+                {
+<span class="nc" id="L877">                    app.line(0,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L878" title="All 2 branches missed.">                } else if (target.equals(&quot;RightUpCorner&quot;))</span>
+                {
+<span class="nc" id="L880">                    app.line(448,0,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L881" title="All 2 branches missed.">                } else if (target.equals(&quot;LeftDownCorner&quot;))</span>
+                {
+<span class="nc" id="L883">                    app.line(0,576,this.x+13,this.y+10);</span>
+<span class="nc bnc" id="L884" title="All 2 branches missed.">                } else if (target.equals(&quot;RightDownCorner&quot;))</span>
+                {
+<span class="nc" id="L886">                    app.line(448,576,this.x+13,this.y+10);</span>
+                }
+                
+            } else {
+<span class="nc" id="L890">                app.line(targetX+12,targetY+12,this.x+13,this.y+10);</span>
+            }
+        }
+<span class="fc" id="L893">    }</span>
+    @Override
+    public String getIdentity() {
+<span class="fc" id="L896">        return &quot;Whim&quot;;</span>
+    }
+    @Override
+    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, boolean sodaMode) {
+<span class="fc" id="L900">        this.sodaMode = sodaMode;</span>
+<span class="fc" id="L901">        this.wakaX = wakaX;</span>
+<span class="fc" id="L902">        this.wakaY = wakaY;</span>
+<span class="fc" id="L903">        targetX = wakaX;</span>
+<span class="fc" id="L904">        targetY = wakaY;</span>
+        int closest;
+<span class="fc bfc" id="L906" title="All 2 branches covered.">        if (scatter) {</span>
+<span class="fc" id="L907">            target = &quot;RightDownCorner&quot;;</span>
+<span class="fc" id="L908">            closest = generateClosest(448,576);</span>
+        } else {
+<span class="fc" id="L910">            closest = generateClosest(targetX,targetY);</span>
+        }
+<span class="fc" id="L912">        moveAccordingToClosest(cellMap,closest);</span>
+
+<span class="fc" id="L914">    }</span>
+    @Override
+    public void move(ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap,int wakaX, int wakaY, String direction, int chaserX, int chaserY, boolean sodaMode) {
+<span class="fc" id="L917">        this.sodaMode = sodaMode;</span>
+<span class="fc" id="L918">        this.wakaX = wakaX;</span>
+<span class="fc" id="L919">        this.wakaY = wakaY;</span>
+        int closest;
+<span class="fc bfc" id="L921" title="All 2 branches covered.">        if (scatter) {</span>
+<span class="fc" id="L922">            closest = generateClosest(448,576);</span>
+<span class="fc" id="L923">            target = &quot;RightDownCorner&quot;;</span>
+        } else {
+<span class="fc bfc" id="L925" title="All 2 branches covered.">            if (direction == &quot;right&quot;) {</span>
+<span class="fc" id="L926">                targetX = wakaX*2 + 64 - chaserX;</span>
+<span class="fc" id="L927">                targetY = wakaY*2 - chaserY;</span>
+<span class="fc bfc" id="L928" title="All 2 branches covered.">            } else if (direction == &quot;left&quot;) {</span>
+<span class="fc" id="L929">                targetX = wakaX*2 - 64 - chaserX;</span>
+<span class="fc" id="L930">                targetY = wakaY*2 - chaserY;</span>
+<span class="fc bfc" id="L931" title="All 2 branches covered.">            } else if (direction == &quot;up&quot;) {</span>
+<span class="fc" id="L932">                targetX = wakaX*2 - chaserX;</span>
+<span class="fc" id="L933">                targetY = wakaY*2 - 64 - chaserY;</span>
+<span class="pc bpc" id="L934" title="1 of 2 branches missed.">            } else if (direction == &quot;down&quot;) {</span>
+<span class="fc" id="L935">                targetX = wakaX*2 - chaserX;</span>
+<span class="fc" id="L936">                targetY = wakaY*2 + 64 - chaserY;</span>
+            }
+<span class="fc bfc" id="L938" title="All 2 branches covered.">            if (targetX &gt; 448) {</span>
+<span class="fc" id="L939">                targetX = 448;</span>
+            }
+<span class="fc bfc" id="L941" title="All 2 branches covered.">            if (targetX &lt; 0) {</span>
+<span class="fc" id="L942">                targetX = 0;</span>
+            }
+<span class="fc bfc" id="L944" title="All 2 branches covered.">            if (targetY &gt; 576) {</span>
+<span class="fc" id="L945">                targetY = 576;</span>
+            }
+<span class="fc bfc" id="L947" title="All 2 branches covered.">            if (targetY &lt; 0) {</span>
+<span class="fc" id="L948">                targetY = 0;</span>
+            }
+<span class="fc" id="L950">            closest = generateClosest(targetX,targetY);</span>
+        }
+<span class="fc" id="L952">        moveAccordingToClosest(cellMap,closest);</span>
+<span class="fc" id="L953">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

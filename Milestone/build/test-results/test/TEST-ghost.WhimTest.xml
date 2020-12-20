@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ghost.WhimTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2020-11-22T12:41:59" hostname="192-168-1-108.tpgi.com.au" time="0.027">
+  <properties/>
+  <testcase name="testMoveScatterSecond()" classname="ghost.WhimTest" time="0.001"/>
+  <testcase name="testVectorMoveNoScatter()" classname="ghost.WhimTest" time="0.014"/>
+  <testcase name="testScatterMove()" classname="ghost.WhimTest" time="0.002"/>
+  <testcase name="testIdentity()" classname="ghost.WhimTest" time="0.001"/>
+  <testcase name="testNoScatterNoChaserMove()" classname="ghost.WhimTest" time="0.002"/>
+  <testcase name="testMoveScatter()" classname="ghost.WhimTest" time="0.002"/>
+  <testcase name="testVectorMoveScatter()" classname="ghost.WhimTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

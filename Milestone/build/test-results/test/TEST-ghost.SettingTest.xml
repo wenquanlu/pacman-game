@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ghost.SettingTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2020-11-22T12:41:59" hostname="192-168-1-108.tpgi.com.au" time="0.013">
+  <properties/>
+  <testcase name="testParseCells()" classname="ghost.SettingTest" time="0.0"/>
+  <testcase name="testGetFrightenedLength()" classname="ghost.SettingTest" time="0.0"/>
+  <testcase name="existTest()" classname="ghost.SettingTest" time="0.001"/>
+  <testcase name="testLives()" classname="ghost.SettingTest" time="0.0"/>
+  <testcase name="testSpeed()" classname="ghost.SettingTest" time="0.0"/>
+  <testcase name="testGetModeLengths()" classname="ghost.SettingTest" time="0.0"/>
+  <testcase name="testGetWakaStart()" classname="ghost.SettingTest" time="0.0"/>
+  <testcase name="testNotWin()" classname="ghost.SettingTest" time="0.001"/>
+  <testcase name="testInitialiseGhost()" classname="ghost.SettingTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

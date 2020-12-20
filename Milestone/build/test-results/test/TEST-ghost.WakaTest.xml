@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ghost.WakaTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2020-11-22T12:41:59" hostname="192-168-1-108.tpgi.com.au" time="0.038">
+  <properties/>
+  <testcase name="testTimeFrightenedOnceFrightened()" classname="ghost.WakaTest" time="0.002"/>
+  <testcase name="testMultipleFrightenedRight()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testGetX()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testGetY()" classname="ghost.WakaTest" time="0.0"/>
+  <testcase name="testMove()" classname="ghost.WakaTest" time="0.002"/>
+  <testcase name="testWakaMoveCannotMove()" classname="ghost.WakaTest" time="0.002"/>
+  <testcase name="testTimeFrightenedEnd()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testSetGetFrightenedMode()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="leftEdgeCase()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testSetGetSodaMode()" classname="ghost.WakaTest" time="0.0"/>
+  <testcase name="testInitialise()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="MoveOnSodaDown()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="MoveOnSodaLeft()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testMultipleFrightenedUp()" classname="ghost.WakaTest" time="0.002"/>
+  <testcase name="MoveOnSuperFruitUp()" classname="ghost.WakaTest" time="0.002"/>
+  <testcase name="testTimeFrightenedNotFrightened()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="MoveOnSuperFruitRight()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="MoveOnSodaRight()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="MoveOnSuperFruitDown()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="MoveOnSuperFruitLeft()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="MoveOnSodaUp()" classname="ghost.WakaTest" time="0.002"/>
+  <testcase name="testMultipleFrightenedDown()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testMultipleFrightenedLeft()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testTimeFrightenedMultipleFrightened()" classname="ghost.WakaTest" time="0.001"/>
+  <testcase name="testWakaMoveCanMove()" classname="ghost.WakaTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

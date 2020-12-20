@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Setting.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">Setting.java</span></div><h1>Setting.java</h1><pre class="source lang-java linenums">package ghost;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+import processing.core.PImage;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
+public class Setting extends JSONObject {
+<span class="fc" id="L10">    private String map = &quot;&quot;;</span>
+    private int lives;
+    private int speed;
+    private JSONArray modeLengths;
+<span class="fc" id="L14">    private ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap = new ArrayList&lt;&gt;();</span>
+    private int wakaStartX;
+    private int wakaStartY;
+    private int frightenedLength;
+<span class="fc" id="L18">    private ArrayList&lt;ArrayList&lt;Integer&gt;&gt; ghostPositions = new ArrayList&lt;&gt;();</span>
+    /**
+     * Constructor of Setting,
+     * which calls two sub methods &quot;parseSetting()&quot; and &quot;parseCell()&quot; 
+     * to parse game configuration and set up the game.
+     */
+<span class="fc" id="L24">    public Setting() {</span>
+<span class="fc" id="L25">        this.parseSetting();</span>
+<span class="fc" id="L26">        this.parseCells();</span>
+<span class="fc" id="L27">    }</span>
+    
+    /**
+     * This method parses lives, speed, map name, frightenedLength, modeLengths
+     * from configuration file named &quot;config.json&quot;
+     */
+    public void parseSetting() {
+<span class="fc" id="L34">        File f = new File(&quot;config.json&quot;);</span>
+        try {
+<span class="fc" id="L36">            Scanner input = new Scanner(f);</span>
+<span class="fc" id="L37">            String s = &quot;&quot;;</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            while (input.hasNextLine()) {</span>
+<span class="fc" id="L39">                s += input.nextLine();</span>
+            }
+<span class="fc" id="L41">            JSONObject jasonData = parse(s);</span>
+<span class="fc" id="L42">            this.lives = jasonData.getInt(&quot;lives&quot;);</span>
+<span class="fc" id="L43">            this.speed = jasonData.getInt(&quot;speed&quot;);</span>
+<span class="fc" id="L44">            this.map = jasonData.getString(&quot;map&quot;);</span>
+<span class="fc" id="L45">            this.frightenedLength = jasonData.getInt(&quot;frightenedLength&quot;);</span>
+<span class="fc" id="L46">            this.modeLengths = jasonData.getJSONArray(&quot;modeLengths&quot;);</span>
+<span class="nc" id="L47">        } catch (FileNotFoundException e) {</span>
+<span class="fc" id="L48">        }</span>
+<span class="fc" id="L49">    }</span>
+
+    /**
+     * parse each grid on the map to a Cell object on a 2-D ArrayList 
+     * &quot;CellMap&quot;.
+     * Note: Waka and Ghosts are not parsed as Cells, but their initial
+     * positions will be registered in some Cells/Setting.
+     */
+    public void parseCells() {
+<span class="fc" id="L58">        String path = map;</span>
+<span class="fc" id="L59">        File f = new File(path);</span>
+<span class="fc" id="L60">        int line = 0;</span>
+        try {
+<span class="fc" id="L62">            Scanner input = new Scanner(f);</span>
+<span class="fc" id="L63">            int ghostcount = 0;</span>
+<span class="fc" id="L64">            int y = 0;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">            while (input.hasNextLine())</span>
+            {
+<span class="fc" id="L67">                ArrayList&lt;Cell&gt; temp = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L68">                char[] lineChar = input.nextLine().toCharArray();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">                for (int i = 0; i &lt; lineChar.length; i++) {</span>
+<span class="fc" id="L70">                    char thisCell = lineChar[i];</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                    if (thisCell == '0') {</span>
+<span class="fc" id="L72">                        temp.add(new Empty(i,y));</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">                    } else if (thisCell == '1') {</span>
+<span class="fc" id="L74">                        temp.add(new Horizontal(i,y));</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">                    } else if (thisCell == '2') {</span>
+<span class="fc" id="L76">                        temp.add(new Vertical(i,y));</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">                    } else if (thisCell == '3') {</span>
+<span class="fc" id="L78">                        temp.add(new UpLeft(i,y));</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                    } else if (thisCell == '4') {</span>
+<span class="fc" id="L80">                        temp.add(new UpRight(i,y));</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                    } else if (thisCell == '5') {</span>
+<span class="fc" id="L82">                        temp.add(new DownLeft(i,y));</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">                    } else if (thisCell == '6') {</span>
+<span class="fc" id="L84">                        temp.add(new DownRight(i,y));</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">                    } else if (thisCell == '7') {</span>
+<span class="fc" id="L86">                        temp.add(new Fruit(i,y));</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">                    } else if (thisCell == '8') {</span>
+<span class="fc" id="L88">                        temp.add(new SuperFruit(i,y));</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                    } else if (thisCell == 's') {</span>
+<span class="fc" id="L90">                        temp.add(new SodaCan(i,y));</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">                    } else if (thisCell == 'p') {</span>
+<span class="fc" id="L92">                        temp.add(new WakaStart(i,y));</span>
+<span class="fc" id="L93">                        wakaStartX = i*16-4;</span>
+<span class="fc" id="L94">                        wakaStartY = y*16-5;</span>
+<span class="pc bpc" id="L95" title="1 of 8 branches missed.">                    } else if (thisCell == 'a'||thisCell == 'c' ||thisCell == 'i'||thisCell == 'w') {</span>
+<span class="fc" id="L96">                        temp.add(new GhostStart(i,y,thisCell));</span>
+<span class="fc" id="L97">                        ArrayList&lt;Integer&gt; coord = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L98">                        coord.add(i);</span>
+<span class="fc" id="L99">                        coord.add(y);</span>
+<span class="fc" id="L100">                        ghostPositions.add(coord);</span>
+<span class="fc" id="L101">                        ghostcount++;</span>
+                    }
+                }
+<span class="fc" id="L104">                cellMap.add(temp);</span>
+<span class="fc" id="L105">                y++;</span>
+<span class="fc" id="L106">            }</span>
+        
+<span class="nc" id="L108">        } catch (FileNotFoundException e) { </span>
+<span class="fc" id="L109">        }</span>
+
+<span class="fc" id="L111">    }</span>
+    /**
+     * The method returns the start coordinate position of waka
+     * as a array of size 2. (in unit of pixels)
+     * @return int[] {x coordinate, y coordinate}
+     */
+    public int[] getWakaStart() {
+<span class="fc" id="L118">        return new int[] {wakaStartX,wakaStartY};</span>
+    }
+
+    /**
+     * The method returns a 2-D ArrayList of parsed Cells.
+     * @return list of list of Cells.
+     */
+    public ArrayList&lt;ArrayList&lt;Cell&gt;&gt; getCellMap() {
+<span class="fc" id="L126">        return cellMap;</span>
+    }
+
+    /**
+     * @return configured speed of both Waka and Ghosts
+     */
+    public int getSpeed() {
+<span class="fc" id="L133">        return speed;</span>
+    }
+
+    /**
+     * @return configured waka's number of lives
+     */
+    public int getLives() {
+<span class="fc" id="L140">        return lives;</span>
+    }
+    
+    /**
+     * @return A 2-D arrayList stores the x,y coordinates of Ghosts.
+     * (in units of Cells)
+     */
+    public ArrayList&lt;ArrayList&lt;Integer&gt;&gt; getGhostPositions() {
+<span class="fc" id="L148">        return ghostPositions;</span>
+    }
+
+    /**
+     * @return A JSONArray configuring the lengths of time for each game mode.
+     */
+    public JSONArray getModeLengths() {
+<span class="fc" id="L155">        return modeLengths;</span>
+    }
+
+    /**
+     * The static method draws a static game board, where Waka and Ghosts travel in.
+     */
+    public static void draw(App app,ArrayList&lt;ArrayList&lt;Cell&gt;&gt; cellMap, PImage horizontalImg, PImage verticalImg,
+    PImage upLeftImg, PImage upRightImg, PImage downLeftImg, PImage downRightImg, PImage fruitImg, 
+    PImage playerRightImg,PImage superFruitImg,PImage sodaImg,int lives) {
+<span class="fc" id="L164">        int count = 0;</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">        for (ArrayList&lt;Cell&gt; line : cellMap) {</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">            for (Cell eachCell: line) {</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">                if (eachCell.getCode() == '1') {</span>
+<span class="fc" id="L168">                    eachCell.draw(app,horizontalImg);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">                } else if (eachCell.getCode() == '2') {</span>
+<span class="fc" id="L170">                    eachCell.draw(app,verticalImg);</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">                } else if (eachCell.getCode() == '3') {</span>
+<span class="fc" id="L172">                    eachCell.draw(app,upLeftImg);</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">                } else if (eachCell.getCode() == '4') {</span>
+<span class="fc" id="L174">                    eachCell.draw(app,upRightImg);</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">                } else if (eachCell.getCode() == '5') {</span>
+<span class="fc" id="L176">                    eachCell.draw(app,downLeftImg);</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">                } else if (eachCell.getCode() == '6') {</span>
+<span class="fc" id="L178">                    eachCell.draw(app,downRightImg);</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">                } else if (eachCell.getCode() == '7') {</span>
+<span class="fc" id="L180">                    eachCell.draw(app,fruitImg);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">                } else if (eachCell.getCode() == '8') {</span>
+<span class="fc" id="L182">                    eachCell.draw(app,superFruitImg);</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                } else if (eachCell.getCode() == 's') {</span>
+<span class="fc" id="L184">                    eachCell.draw(app,sodaImg);</span>
+                }
+<span class="fc" id="L186">            }</span>
+<span class="fc" id="L187">        }</span>
+<span class="fc" id="L188">        int livePointer = 0;</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">        while (livePointer &lt; lives) {</span>
+<span class="fc" id="L190">            app.image(playerRightImg,7+livePointer*26,545);</span>
+<span class="fc" id="L191">            livePointer+=1;</span>
+        }
+<span class="fc" id="L193">    }</span>
+
+    /**
+     * @param ambusherImg: PImage of the Ambusher Ghost.
+     * @param chaserImg: PImage of the Chaser Ghost.
+     * @param ignorantImg: PImage of the Ignorant Ghost.
+     * @param whimImg: PImage of the Whim Ghost.
+     * @param frightenedImg: PImage of frightened mode Ghost.
+     * @param wavy1Img: PImage of invisible wavy state Ghost.
+     * @param wavy2Img: PImage of invisible wavy state Ghost.
+     * @param frightenedLength: length of specified frightened mode.
+     * @return An ArrayList of all Ghosts in the game.
+     * All Ghosts has their own pixel coordinates start position parsed in.
+     */
+    public ArrayList&lt;Ghost&gt; initialiseGhost(PImage ambusherImg,
+    PImage chaserImg, PImage ignorantImg, PImage whimImg, PImage frightenedImg,PImage wavy1Img, PImage wavy2Img, int frightenedLength) {
+<span class="fc" id="L209">        ArrayList&lt;Ghost&gt; ghosts = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L210">        Ghost.setIJPointers(0,0);</span>
+<span class="fc" id="L211">        Ghost.setFrightenedModeLength(frightenedLength);</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">        for (int i = 0; i &lt; this.getGhostPositions().size(); i++) {</span>
+<span class="fc" id="L213">            int x = this.getGhostPositions().get(i).get(0);</span>
+<span class="fc" id="L214">            int y = this.getGhostPositions().get(i).get(1);</span>
+<span class="fc" id="L215">            char code = cellMap.get(y).get(x).getCode();</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">            if (code == 'a') {</span>
+<span class="fc" id="L217">                ghosts.add(new Ambusher(x*16-6, y*16-5,ambusherImg, frightenedImg, wavy1Img, wavy2Img, this.getSpeed(), frightenedLength));</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">            } else if (code == 'c') {</span>
+<span class="fc" id="L219">                ghosts.add(new Chaser(x*16-6, y*16-5,chaserImg,frightenedImg,wavy1Img, wavy2Img, this.getSpeed(), frightenedLength));</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">            } else if (code == 'i') {</span>
+<span class="fc" id="L221">                ghosts.add(new Ignorant(x*16-6, y*16-5,ignorantImg,frightenedImg, wavy1Img, wavy2Img,this.getSpeed(), frightenedLength));</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">            } else if (code == 'w') {</span>
+<span class="fc" id="L223">                ghosts.add(new Whim(x*16-6, y*16-5,whimImg,frightenedImg,wavy1Img, wavy2Img, this.getSpeed(), frightenedLength));</span>
+            }
+        }
+<span class="fc" id="L226">        return ghosts;</span>
+    }
+
+    /**
+     * Getter method for frightenedLength
+     * @return int length of frightened mode specified in configuration file.
+     */
+    public int getfrightenedLength() {
+<span class="fc" id="L234">        return frightenedLength;</span>
+    }
+
+    /**
+     * The method scans for any presence of fruit or superfruit,
+     * if Waka ate all the fruits and superfruits, it wins.
+     * @return true if won, false if haven't won.
+     */
+    public boolean checkWin() {
+<span class="fc" id="L243">        boolean win = true;</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">        for (ArrayList&lt;Cell&gt; line : cellMap) {</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">            for (Cell eachCell: line) {</span>
+<span class="pc bpc" id="L246" title="1 of 4 branches missed.">                if (eachCell.getCode() == '7' || eachCell.getCode() == '8') {</span>
+<span class="fc" id="L247">                    win = false;</span>
+<span class="fc" id="L248">                    break;</span>
+                }
+<span class="fc" id="L250">            }</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">            if (!win) {</span>
+<span class="fc" id="L252">                break;</span>
+            }
+<span class="fc" id="L254">        }</span>
+<span class="fc" id="L255">        return win;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

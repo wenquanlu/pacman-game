@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ghost.AmbusherTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2020-11-22T12:41:59" hostname="192-168-1-108.tpgi.com.au" time="0.022">
+  <properties/>
+  <testcase name="testMoveDownEdge()" classname="ghost.AmbusherTest" time="0.002"/>
+  <testcase name="testMoveLeftEdge()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveRightOut()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveLeftOut()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveDown()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveLeft()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveDownOut()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveUp()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveRight()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveUpOut()" classname="ghost.AmbusherTest" time="0.001"/>
+  <testcase name="testMoveRightEdge()" classname="ghost.AmbusherTest" time="0.002"/>
+  <testcase name="testMoveUpEdge()" classname="ghost.AmbusherTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

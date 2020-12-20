@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Stopper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">Stopper.java</span></div><h1>Stopper.java</h1><pre class="source lang-java linenums">package ghost;
+import processing.core.PFont;
+/**
+ * Stopper class handles the continuation, visual representation of the game
+ * when the game stops due to win or lose. It has an internal clock: a counter that
+ * increments everytime stopLose or stopWin is called.
+ */
+<span class="fc" id="L8">public class Stopper {</span>
+<span class="fc" id="L9">    private int stopCounter = 0;</span>
+
+    /**
+     * Setter method for the stopCounter
+     * @param counter: sets the clock counter.
+     * this method mainly serves for testing purpose.
+     */
+<span class="fc" id="L16">    public void setStopCounter(int counter) { stopCounter = counter; }</span>
+
+    /**
+     * stopLose is called when the game is stopped due to lose.
+     * It return lives to be 0 and draws &quot;GAME OVER&quot; screen
+     * until the end of 10 seconds is reached.
+     * @param set, a Setting object, used to provide initial number of 
+     * lives for waka
+     * @param app, the game app.
+     * @param fonts, type of font used to display &quot;GAME OVER&quot;
+     * @return lives of Waka
+     */
+    public int stopLose(Setting set, App app, PFont fonts) {
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (stopCounter == 600) {</span>
+<span class="fc" id="L30">            set = new Setting();</span>
+<span class="fc" id="L31">            app.setup();</span>
+<span class="fc" id="L32">            stopCounter = 0;</span>
+<span class="fc" id="L33">            return set.getLives();</span>
+        }
+<span class="fc" id="L35">            app.rect(-1, -1, app.WIDTH+2, app.HEIGHT+2);</span>
+<span class="fc" id="L36">            app.background(0);</span>
+<span class="fc" id="L37">            app.textFont(fonts,29);</span>
+<span class="fc" id="L38">            app.text(&quot;GAME OVER&quot;,96,200);</span>
+<span class="fc" id="L39">            stopCounter ++;</span>
+<span class="fc" id="L40">            return 0;</span>
+    }
+
+
+        /**
+     * stopWin is called when the game is stopped due to Win.
+     * It draws &quot;YOU WIN&quot; screen and return false
+     * until the end of 10 seconds is reached.
+     * @param app, the game app.
+     * @param fonts, type of font used to display &quot;You win&quot;
+     * @return whether it reaches the end of 10 seconds
+     */
+    public boolean stopWin(App app, PFont fonts) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (stopCounter == 600) {</span>
+<span class="fc" id="L54">            stopCounter = 0;</span>
+<span class="fc" id="L55">            return true;</span>
+        }
+<span class="fc" id="L57">        app.rect(-1, -1, app.WIDTH+2, app.HEIGHT+2);</span>
+<span class="fc" id="L58">        app.background(0);</span>
+<span class="fc" id="L59">        app.textFont(fonts,29);</span>
+<span class="fc" id="L60">        app.text(&quot;YOU WIN&quot;,126,200);</span>
+<span class="fc" id="L61">        stopCounter ++;</span>
+<span class="fc" id="L62">        return false;</span>
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GameManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Milestone</a> &gt; <a href="index.source.html" class="el_package">ghost</a> &gt; <span class="el_source">GameManager.java</span></div><h1>GameManager.java</h1><pre class="source lang-java linenums">package ghost;
+import java.util.ArrayList;
+import processing.core.PApplet;
+
+/**
+ * GameManager is a small helper (wrapper) class that does not have its own
+ * instance method/attributes. 
+ * Its whole functionality is processing key events, keycodes into 
+ * understandable instruction.
+ */
+<span class="fc" id="L11">public class GameManager {</span>
+
+    /**
+     * @param keyCode: int keyCode passed by the keyPressed method in App.
+     * @return temp_input: stands for temporary/raw input in the form of
+     * a String, &quot;right&quot;,&quot;left&quot;,&quot;up&quot;,&quot;down&quot;.This temp_input will not be 
+     * directly used by Waka.
+     */
+    public static String keyPressed(int keyCode) {
+<span class="fc" id="L20">        String temp_input = &quot;&quot;;</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        if (keyCode == 39) { </span>
+<span class="fc" id="L22">            temp_input = &quot;right&quot;;</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        } else if (keyCode == 37) { </span>
+<span class="fc" id="L24">            temp_input = &quot;left&quot;; </span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        } else if (keyCode == 38) { </span>
+<span class="fc" id="L26">            temp_input = &quot;up&quot;; </span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        } else if (keyCode == 40) { </span>
+<span class="fc" id="L28">            temp_input = &quot;down&quot;;</span>
+        }
+<span class="fc" id="L30">        return temp_input;</span>
+    }
+
+    /**
+     * The method detects if the space bar is pressed.
+     * @return true: the space bar is pressed, signalling starting the debug mode. 
+     *  false: the space bar is not pressed.
+     */
+    public static boolean debug(int keyCode, boolean debug) {
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (keyCode == 32) { </span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">            return !debug;</span>
+        } else {
+<span class="fc" id="L42">            return debug;</span>
+        }
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
